@@ -5,12 +5,21 @@ error_reporting(0);
 	class Request_model extends CI_Model {
 
 	private $curl = NULL;
+    private $headers = NULL;
 
     public function __construct()
     {
         //set accessors
 		require_once('class/App.php');
 		$this->curl = new App();
+    }
+
+    public function setHeaders($headers){
+        $this->headers = $headers;
+    }
+
+    public function getHeaders(){
+        return $this->headers;
     }
 
     public function poolCharacters($characterid = false)
@@ -60,6 +69,29 @@ error_reporting(0);
         }
 
         return false;
+    }
+
+    public function generateCSVData($sessiondata = false, $headers = false, $character_header = NULL, $character_name = NULL)
+    {
+        //check if there is session data
+        if(!$sessiondata){ return false; } 
+        //get results from session data
+        $results = $sessiondata;
+        //store data in new array for csv
+        $csvArray = array();
+
+        //pass headers to csvArray to occupy the first row in the csv
+        $csvArray[] = $headers;
+        //loop through
+        foreach ($results as $key => $value) {
+            $title = $value['title'];//data title
+            $description = $value['description'];//data description
+            $date_first_published = $value['date_first_published'];//data date published
+            //extract numeric indexed values and store numerically in csvArray
+            $csvArray[] = array($character_name, $character_header, $title, $description, $date_first_published);
+        }
+
+        return $csvArray;
     }
 
 

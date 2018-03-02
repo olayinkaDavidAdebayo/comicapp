@@ -9,11 +9,15 @@ class Pages extends CI_Controller {
         {
             parent::__construct();
 
+            //load session for global access
+            $this->load->library('session');
             //load the only model used in this app, if more than one load all here
             $this->load->model('request_model');
-
             //load helper function
-            $this->load->helper('url_helper');	
+            $this->load->helper('url_helper');
+            //set headers :: I set headers here because all data has same headers
+            $headers = array("Character", "Data Type", "Name", "Description", "Date First Published");
+            $this->request_model->setHeaders($headers);
 				                			
         }
 
@@ -22,21 +26,17 @@ class Pages extends CI_Controller {
         	if($pages ==""){
         		//this will be be used to prevent invalid url
 				$this->show404();
-			}	
-
+			}
 			//store base url into global data array
 			$data["url"] = base_url();
-
 			//load page header from include folder
-			$this->load->view('includes/html_header', $data);
-			
+			$this->load->view('includes/html_header', $data);			
 			//this check and load views attached to the requested url if valid
 			switch(strtolower($pages))
 			{
                 case "results": $this->results($data); break;
 				default: $this->home($data);
-			}
-			
+			}			
 			//load page footer from include folder
 			$this->load->view('includes/html_footer', $data);
 			
@@ -57,6 +57,8 @@ class Pages extends CI_Controller {
 
         public function results($data)
         {
+            //assign base url to view
+            $data['url'] = base_url();
         	//check if key header and character exists in global variable post
         	if(array_key_exists("header", $_POST) && array_key_exists("character", $_POST)){
 	        	//Post is used in order to hide the data from showing in url
@@ -69,12 +71,18 @@ class Pages extends CI_Controller {
 	        	$json_results = $this->request_model->poolDataByType($character_id, $header);
                 //decode response json data
                 $array_results = json_decode($json_results, true);
+                
                 //pass header to the view
 	        	$data['header'] = $header;
+                //table headers
+                $data['table_headers'] = $this->request_model->getHeaders();
                 //pass character name to the view
 	        	$data['character_name'] = $character['character_name'];
                 //pass data to the view
 	        	$data['results'] = $this->request_model->fetch_result_from_array( $array_results);
+
+                //store array into session
+                $this->session->set_userdata("resultdata", $data['results']);
 
 	        	//call the view
         	   $this->load->view('pages/results', $data);
@@ -86,14 +94,6 @@ class Pages extends CI_Controller {
 
         }
 
-        public function download($filename = NULL) {
-          // load download helder
-          $this->load->helper('download');
-          // read file contents
-          $data = file_get_contents(base_url().'resources/manuscripts/'.$filename);
-          force_download($filename, $data);
-
-      	}
 
         public function show404()
         {

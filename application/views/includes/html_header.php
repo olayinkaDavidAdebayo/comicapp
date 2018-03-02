@@ -8,11 +8,11 @@
     <title>Continuum Comics</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php print $url; ?>assets/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="css/style.css" rel="stylesheet">
-    <link href="css/floating-labels.css" rel="stylesheet">
+    <link href="<?php print $url; ?>assets/css/style.css" rel="stylesheet">
+    <link href="<?php print $url; ?>assets/css/floating-labels.css" rel="stylesheet">
 
   </head>
 
